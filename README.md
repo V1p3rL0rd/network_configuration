@@ -2,9 +2,9 @@
 Simple bash scripts to quickly configure network settings on RHEL and UBUNTU systems
 To run the script, you need to follow next simple steps:
 
-Download this script to your host
-Give permissions to execute using chmod +x netconfig-rhel.sh
-Run the script and enter your network settings as in the example below:
+1. Download this script to your host
+2. Give permissions to execute using chmod +x netconfig-rhel.sh
+3. Run the script and enter your network settings as in the example below:
 
 RHEL
 $ sudo ./netconfig-rhel.sh
