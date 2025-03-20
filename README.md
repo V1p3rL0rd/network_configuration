@@ -49,45 +49,6 @@ sudo ./netconfig-rhel.sh
 - Primary DNS server
 - Secondary DNS server
 
-## Configuration File Locations
-
-### Ubuntu:
-- Main configuration file: `/etc/netplan/01-netcfg.yaml`
-- Backup file: `/etc/netplan/01-netcfg.yaml.backup`
-
-### RHEL:
-- Main configuration file: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE]`
-- Backup file: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup`
-- DNS settings: `/etc/resolv.conf`
-
-## Verifying Settings
-
-After running the script, you can verify the settings using these commands:
-
-```bash
-ip addr show
-ip route show
-```
-
-For DNS verification:
-- Ubuntu: `systemd-resolve --status`
-- RHEL: `cat /etc/resolv.conf`
-
-## Restoring from Backup
-
-In case of issues, you can restore previous settings from backup:
-
-For Ubuntu:
-```bash
-sudo cp /etc/netplan/01-netcfg.yaml.backup /etc/netplan/01-netcfg.yaml
-sudo netplan apply
-```
-
-For RHEL:
-```bash
-sudo cp /etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup /etc/sysconfig/network-scripts/ifcfg-[INTERFACE]
-sudo systemctl restart NetworkManager
-```
 
 ## Security
 
@@ -101,23 +62,7 @@ If you encounter problems:
 1. Verify the correctness of entered parameters
 2. Ensure you have root privileges
 3. Check system logs: `journalctl -xe`
-4. Restore settings from backup if necessary
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-1. Fork the project
-2. Create your feature branch
-3. Commit your changes
-4. Submit a pull request
-
-## Authors
-
-Initial Author - [Your Name]
-
-## Support
-
-For support, please create an issue in the GitHub repository or contact the maintainers. 
