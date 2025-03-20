@@ -1,26 +1,26 @@
 #!/bin/bash
 
-# Проверка прав root
+# Check for root privileges
 if [[ $EUID -ne 0 ]]; then
-    echo "Этот скрипт должен быть запущен с правами root" 
+    echo "This script must be run as root" 
     exit 1
 fi
 
-# Запрос параметров у пользователя
-read -p "Введите имя сетевого интерфейса (например, enp0s3): " INTERFACE
-read -p "Введите IP-адрес (например, 192.168.1.100): " IP
-read -p "Введите маску подсети (например, 24 или 255.255.255.0): " MASK
-read -p "Введите адрес шлюза (например, 192.168.1.1): " GATEWAY
-read -p "Введите первичный DNS-сервер (например, 8.8.8.8): " DNS1
-read -p "Введите вторичный DNS-сервер (например, 8.8.4.4): " DNS2
+# Request user parameters
+read -p "Enter network interface name (e.g., enp0s3): " INTERFACE
+read -p "Enter IP address (e.g., 192.168.1.100): " IP
+read -p "Enter subnet mask (e.g., 24 or 255.255.255.0): " MASK
+read -p "Enter gateway address (e.g., 192.168.1.1): " GATEWAY
+read -p "Enter primary DNS server (e.g., 8.8.8.8): " DNS1
+read -p "Enter secondary DNS server (e.g., 8.8.4.4): " DNS2
 
-# Проверка существования интерфейса
+# Check if interface exists
 if ! ip link show dev "$INTERFACE" &> /dev/null; then
-    echo "Ошибка: Интерфейс $INTERFACE не существует"
+    echo "Error: Interface $INTERFACE does not exist"
     exit 1
 fi
 
-# Функция для конвертации маски подсети в префикс
+# Function to convert subnet mask to prefix
 mask_to_prefix() {
     local mask=$1
     if [[ $mask =~ ^[0-9]{1,2}$ ]]; then
@@ -41,7 +41,7 @@ mask_to_prefix() {
             192) ((prefix += 2)) ;;
             128) ((prefix += 1)) ;;
             0)   ;;
-            *)    echo "Ошибка: Неверная маска подсети $mask" >&2; exit 1 ;;
+            *)    echo "Error: Invalid subnet mask $mask" >&2; exit 1 ;;
         esac
     done
     echo "$prefix"
@@ -49,10 +49,10 @@ mask_to_prefix() {
 
 PREFIX=$(mask_to_prefix "$MASK") || exit 1
 
-# Настройка сети с помощью netplan
-echo "Настройка сети для Ubuntu..."
+# Configure network using netplan
+echo "Configuring network for Ubuntu..."
 
-# Создание конфигурационного файла netplan
+# Create netplan configuration file
 NETPLAN_FILE="/etc/netplan/99-custom.yaml"
 cat > "$NETPLAN_FILE" << EOF
 network:
@@ -68,7 +68,7 @@ network:
         addresses: [$DNS1, $DNS2]
 EOF
 
-# Применение конфигурации
+# Apply configuration
 netplan apply
 
-echo "Настройка сети успешно завершена!" 
+echo "Network configuration completed successfully!" 
