@@ -1,45 +1,104 @@
-# Network configuration
-Simple bash scripts to quickly configure network settings on RHEL and UBUNTU systems
-To run the script, you need to follow next simple steps:
+# Скрипты настройки сети для Ubuntu и RHEL
 
-1. Download this script to your host
-2. Give permissions to execute using chmod +x netconfig-rhel.sh
-3. Run the script and enter your network settings as in the example below:
+Эти скрипты предназначены для автоматизации процесса настройки сети на серверах Ubuntu и RHEL. Они позволяют быстро настроить статический IP-адрес, маску сети, шлюз и DNS-серверы.
 
-RHEL
-$ sudo ./netconfig-rhel.sh
+## Особенности
 
-Enter the interface name (e.g., eth0): eth0
+- Автоматическое определение основного сетевого интерфейса
+- Интерактивный ввод сетевых параметров
+- Создание резервных копий конфигурационных файлов
+- Проверка подключения после настройки
+- Подробный вывод новых настроек
 
-Enter the IP address (e.g., 192.168.1.100): 192.168.1.100
+## Требования
 
-Enter the subnet mask (e.g., 24 or 255.255.255.0): 24
+### Для Ubuntu:
+- Ubuntu 24.04 или новее
+- Права root
+- Установленный netplan
 
-Enter the gateway (e.g., 192.168.1.1): 192.168.1.1
+### Для RHEL:
+- RHEL 9.5 или новее
+- Права root
+- NetworkManager
 
-Enter DNS1 (e.g., 8.8.8.8): 8.8.8.8
+## Использование
 
-Enter DNS2 (e.g., 8.8.4.4): 8.8.4.4
+1. Сделайте скрипты исполняемыми:
+```bash
+chmod +x netconfig-ubuntu.sh
+chmod +x netconfig-rhel.sh
+```
 
-Configuring network for RHEL...
+2. Запустите соответствующий скрипт:
 
-Network configuration completed successfully!
+Для Ubuntu:
+```bash
+sudo ./netconfig-ubuntu.sh
+```
 
-UBUNTU
-$ sudo ./netconfig-ubuntu.sh
+Для RHEL:
+```bash
+sudo ./netconfig-rhel.sh
+```
 
-Enter the interface name (e.g., enp0s3): enp0s3
+3. Следуйте инструкциям и введите запрашиваемые параметры:
+- IP-адрес хоста
+- Маску сети (в формате CIDR)
+- Адрес шлюза
+- Первичный DNS-сервер
+- Вторичный DNS-сервер
 
-Enter the IP address (e.g., 192.168.1.100): 192.168.1.100
+## Расположение конфигурационных файлов
 
-Enter the subnet mask (e.g., 24 or 255.255.255.0): 255.255.255.0
+### Ubuntu:
+- Основной файл конфигурации: `/etc/netplan/01-netcfg.yaml`
+- Резервная копия: `/etc/netplan/01-netcfg.yaml.backup`
 
-Enter the gateway (e.g., 192.168.1.1): 192.168.1.1
+### RHEL:
+- Основной файл конфигурации: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE]`
+- Резервная копия: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup`
+- DNS настройки: `/etc/resolv.conf`
 
-Enter DNS1 (e.g., 8.8.8.8): 8.8.8.8
+## Проверка настроек
 
-Enter DNS2 (e.g., 8.8.4.4): 8.8.4.4
+После выполнения скрипта вы можете проверить настройки следующими командами:
 
-Configuring network for Ubuntu...
+```bash
+ip addr show
+ip route show
+```
 
-Network configuration completed successfully!
+Для проверки DNS:
+- Ubuntu: `systemd-resolve --status`
+- RHEL: `cat /etc/resolv.conf`
+
+## Восстановление из резервной копии
+
+В случае проблем вы можете восстановить предыдущие настройки из резервной копии:
+
+Для Ubuntu:
+```bash
+sudo cp /etc/netplan/01-netcfg.yaml.backup /etc/netplan/01-netcfg.yaml
+sudo netplan apply
+```
+
+Для RHEL:
+```bash
+sudo cp /etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup /etc/sysconfig/network-scripts/ifcfg-[INTERFACE]
+sudo systemctl restart NetworkManager
+```
+
+## Безопасность
+
+- Скрипты требуют прав root
+- Создаются резервные копии всех изменяемых файлов
+- Проверка подключения после применения настроек
+
+## Поддержка
+
+При возникновении проблем:
+1. Проверьте правильность введенных параметров
+2. Убедитесь, что у вас есть права root
+3. Проверьте логи системы: `journalctl -xe`
+4. При необходимости восстановите настройки из резервной копии 
