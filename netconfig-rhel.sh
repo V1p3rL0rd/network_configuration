@@ -1,37 +1,37 @@
 #!/bin/bash
 
-# Проверка на root права
+# Check for root privileges
 if [ "$EUID" -ne 0 ]; then 
-    echo "Пожалуйста, запустите скрипт с правами root"
+    echo "Please run this script as root"
     exit 1
 fi
 
-# Определение основного сетевого интерфейса
+# Determine primary network interface
 INTERFACE=$(ip -o -4 route show to default | awk '{print $5}' | head -n1)
 
-# Получение текущего имени соединения
+# Get current connection name
 CONNECTION_NAME=$(nmcli -g NAME connection show --active | grep -v 'lo' | head -n1)
 
 if [ -z "$CONNECTION_NAME" ]; then
     CONNECTION_NAME="static-$INTERFACE"
 fi
 
-# Запрос параметров сети
-read -p "Введите IP-адрес хоста (например, 192.168.1.100): " IP_ADDRESS
-read -p "Введите маску сети в формате CIDR (например, 24 для /24): " NETMASK
-read -p "Введите адрес шлюза (например, 192.168.1.1): " GATEWAY
-read -p "Введите первичный DNS-сервер: " DNS1
-read -p "Введите вторичный DNS-сервер: " DNS2
+# Request network parameters
+read -p "Enter host IP address (e.g., 192.168.1.100): " IP_ADDRESS
+read -p "Enter subnet mask in CIDR format (e.g., 24 for /24): " NETMASK
+read -p "Enter gateway address (e.g., 192.168.1.1): " GATEWAY
+read -p "Enter primary DNS server: " DNS1
+read -p "Enter secondary DNS server: " DNS2
 
-echo "Создание резервной копии текущих настроек..."
+echo "Creating backup of current settings..."
 nmcli connection show "$CONNECTION_NAME" > "/tmp/network_backup_$(date +%Y%m%d_%H%M%S).txt"
 
-echo "Настройка нового соединения..."
-# Удаляем старое соединение, если оно существует
+echo "Configuring new connection..."
+# Remove old connection if it exists
 nmcli connection down "$CONNECTION_NAME" 2>/dev/null
 nmcli connection delete "$CONNECTION_NAME" 2>/dev/null
 
-# Создаем новое соединение
+# Create new connection
 nmcli connection add \
     type ethernet \
     con-name "$CONNECTION_NAME" \
@@ -43,34 +43,34 @@ nmcli connection add \
     ipv4.never-default no \
     connection.autoconnect yes
 
-# Активация соединения
-echo "Активация нового соединения..."
+# Activate connection
+echo "Activating new connection..."
 nmcli connection up "$CONNECTION_NAME"
 
-# Проверка настроек
-echo -e "\nНовые настройки сети:"
+# Verify settings
+echo -e "\nNew network settings:"
 echo "========================="
-echo "Интерфейс: $INTERFACE"
-echo "Соединение: $CONNECTION_NAME"
-echo "IP-адрес: $IP_ADDRESS/$NETMASK"
-echo "Шлюз: $GATEWAY"
-echo "DNS серверы: $DNS1, $DNS2"
+echo "Interface: $INTERFACE"
+echo "Connection: $CONNECTION_NAME"
+echo "IP Address: $IP_ADDRESS/$NETMASK"
+echo "Gateway: $GATEWAY"
+echo "DNS Servers: $DNS1, $DNS2"
 echo "========================="
 
-# Проверка подключения
-echo -e "\nПроверка подключения..."
+# Test connection
+echo -e "\nTesting connection..."
 ping -c 3 $GATEWAY
 
 if [ $? -eq 0 ]; then
-    echo "Настройка сети успешно завершена!"
+    echo "Network configuration completed successfully!"
 else
-    echo "Предупреждение: Не удалось выполнить ping шлюза. Проверьте настройки."
+    echo "Warning: Unable to ping gateway. Please check your settings."
 fi
 
-echo -e "\nДля проверки настроек выполните:"
+echo -e "\nTo verify settings, run:"
 echo "nmcli connection show $CONNECTION_NAME"
 echo "ip addr show $INTERFACE"
 echo "ip route show"
 echo "nmcli device show $INTERFACE | grep IP4"
 
-echo -e "\nДля восстановления предыдущих настроек используйте резервную копию в /tmp/network_backup_*.txt" 
+echo -e "\nTo restore previous settings, use the backup file in /tmp/network_backup_*.txt" 
