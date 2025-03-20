@@ -1,104 +1,123 @@
-# Скрипты настройки сети для Ubuntu и RHEL
+# Network Configuration Scripts for Ubuntu and RHEL
 
-Эти скрипты предназначены для автоматизации процесса настройки сети на серверах Ubuntu и RHEL. Они позволяют быстро настроить статический IP-адрес, маску сети, шлюз и DNS-серверы.
+These scripts are designed to automate the network configuration process on Ubuntu and RHEL servers. They allow you to quickly set up static IP addresses, subnet masks, gateways, and DNS servers.
 
-## Особенности
+## Features
 
-- Автоматическое определение основного сетевого интерфейса
-- Интерактивный ввод сетевых параметров
-- Создание резервных копий конфигурационных файлов
-- Проверка подключения после настройки
-- Подробный вывод новых настроек
+- Automatic detection of the primary network interface
+- Interactive input of network parameters
+- Creation of configuration file backups
+- Connection testing after setup
+- Detailed output of new settings
 
-## Требования
+## Requirements
 
-### Для Ubuntu:
-- Ubuntu 24.04 или новее
-- Права root
-- Установленный netplan
+### For Ubuntu:
+- Ubuntu 24.04 or newer
+- Root privileges
+- Netplan installed
 
-### Для RHEL:
-- RHEL 9.5 или новее
-- Права root
+### For RHEL:
+- RHEL 9.5 or newer
+- Root privileges
 - NetworkManager
 
-## Использование
+## Usage
 
-1. Сделайте скрипты исполняемыми:
+1. Make the scripts executable:
 ```bash
 chmod +x netconfig-ubuntu.sh
 chmod +x netconfig-rhel.sh
 ```
 
-2. Запустите соответствующий скрипт:
+2. Run the appropriate script:
 
-Для Ubuntu:
+For Ubuntu:
 ```bash
 sudo ./netconfig-ubuntu.sh
 ```
 
-Для RHEL:
+For RHEL:
 ```bash
 sudo ./netconfig-rhel.sh
 ```
 
-3. Следуйте инструкциям и введите запрашиваемые параметры:
-- IP-адрес хоста
-- Маску сети (в формате CIDR)
-- Адрес шлюза
-- Первичный DNS-сервер
-- Вторичный DNS-сервер
+3. Follow the prompts and enter the requested parameters:
+- Host IP address
+- Subnet mask (in CIDR format)
+- Gateway address
+- Primary DNS server
+- Secondary DNS server
 
-## Расположение конфигурационных файлов
+## Configuration File Locations
 
 ### Ubuntu:
-- Основной файл конфигурации: `/etc/netplan/01-netcfg.yaml`
-- Резервная копия: `/etc/netplan/01-netcfg.yaml.backup`
+- Main configuration file: `/etc/netplan/01-netcfg.yaml`
+- Backup file: `/etc/netplan/01-netcfg.yaml.backup`
 
 ### RHEL:
-- Основной файл конфигурации: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE]`
-- Резервная копия: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup`
-- DNS настройки: `/etc/resolv.conf`
+- Main configuration file: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE]`
+- Backup file: `/etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup`
+- DNS settings: `/etc/resolv.conf`
 
-## Проверка настроек
+## Verifying Settings
 
-После выполнения скрипта вы можете проверить настройки следующими командами:
+After running the script, you can verify the settings using these commands:
 
 ```bash
 ip addr show
 ip route show
 ```
 
-Для проверки DNS:
+For DNS verification:
 - Ubuntu: `systemd-resolve --status`
 - RHEL: `cat /etc/resolv.conf`
 
-## Восстановление из резервной копии
+## Restoring from Backup
 
-В случае проблем вы можете восстановить предыдущие настройки из резервной копии:
+In case of issues, you can restore previous settings from backup:
 
-Для Ubuntu:
+For Ubuntu:
 ```bash
 sudo cp /etc/netplan/01-netcfg.yaml.backup /etc/netplan/01-netcfg.yaml
 sudo netplan apply
 ```
 
-Для RHEL:
+For RHEL:
 ```bash
 sudo cp /etc/sysconfig/network-scripts/ifcfg-[INTERFACE].backup /etc/sysconfig/network-scripts/ifcfg-[INTERFACE]
 sudo systemctl restart NetworkManager
 ```
 
-## Безопасность
+## Security
 
-- Скрипты требуют прав root
-- Создаются резервные копии всех изменяемых файлов
-- Проверка подключения после применения настроек
+- Scripts require root privileges
+- Backups are created for all modified files
+- Connection testing after applying settings
 
-## Поддержка
+## Troubleshooting
 
-При возникновении проблем:
-1. Проверьте правильность введенных параметров
-2. Убедитесь, что у вас есть права root
-3. Проверьте логи системы: `journalctl -xe`
-4. При необходимости восстановите настройки из резервной копии 
+If you encounter problems:
+1. Verify the correctness of entered parameters
+2. Ensure you have root privileges
+3. Check system logs: `journalctl -xe`
+4. Restore settings from backup if necessary
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+1. Fork the project
+2. Create your feature branch
+3. Commit your changes
+4. Submit a pull request
+
+## Authors
+
+Initial Author - [Your Name]
+
+## Support
+
+For support, please create an issue in the GitHub repository or contact the maintainers. 
